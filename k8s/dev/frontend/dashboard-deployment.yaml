@@ -43,3 +43,20 @@ spec:
             limits:
               memory: '4Gi'
               cpu: '1000m'
+          # Note: Using TCP probes instead of HTTP probes because Angular SSR dev server
+          # has issues responding to HTTP requests in containers (even though it reports listening)
+          # TCP probes check if the port is open, which is sufficient for development
+          readinessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 120  # 2 minutes for build
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: 4000
+            initialDelaySeconds: 180  # 3 minutes before first check
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
