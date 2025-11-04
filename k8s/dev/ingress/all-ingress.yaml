@@ -1,0 +1,189 @@
+# API Gateway Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.test.suneasy.app
+    secretName: api-test-suneasy-tls
+  rules:
+  - host: api.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+---
+# Admin Frontend Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: admin-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - admin.test.suneasy.app
+    secretName: admin-test-suneasy-tls
+  rules:
+  - host: admin.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: admin
+            port:
+              number: 4100
+---
+# Dashboard Frontend Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - dashboard.test.suneasy.app
+    secretName: dashboard-test-suneasy-tls
+  rules:
+  - host: dashboard.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dashboard
+            port:
+              number: 4000
+---
+# Landing Page Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: landing-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - www.test.suneasy.app
+    secretName: www-test-suneasy-tls
+  rules:
+  - host: www.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: landing
+            port:
+              number: 4300
+---
+# Client Web Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-web-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - app.test.suneasy.app
+    secretName: app-test-suneasy-tls
+  rules:
+  - host: app.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: client-web
+            port:
+              number: 4500
+---
+# Client Mobile Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: client-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - client.test.suneasy.app
+    secretName: client-test-suneasy-tls
+  rules:
+  - host: client.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: client
+            port:
+              number: 4200
+---
+# Business Mobile Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: business-ingress
+  namespace: suneasy-dev
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - business.test.suneasy.app
+    secretName: business-test-suneasy-tls
+  rules:
+  - host: business.test.suneasy.app
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: business
+            port:
+              number: 4201

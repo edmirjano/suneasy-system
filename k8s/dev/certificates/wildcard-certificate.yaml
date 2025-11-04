@@ -1,0 +1,56 @@
+---
+# Wildcard Certificate for *.test.suneasy.app using Cert-Manager
+# This will automatically request and renew certificates from Let's Encrypt
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: suneasy-wildcard-cert
+  namespace: suneasy-dev
+spec:
+  secretName: suneasy-tls-cert
+  issuerRef:
+    name: letsencrypt-staging  # Change to letsencrypt-prod for production
+    kind: ClusterIssuer
+  dnsNames:
+    - '*.test.suneasy.app'
+    - 'test.suneasy.app'
+  # For wildcard certificates, you typically need DNS-01 challenge
+  # If using HTTP-01, you'll need individual certificates per subdomain
+  # Uncomment the following if you need to use HTTP-01:
+  # dnsNames:
+  #   - admin.test.suneasy.app
+  #   - dashboard.test.suneasy.app
+  #   - www.test.suneasy.app
+  #   - app.test.suneasy.app
+  #   - client.test.suneasy.app
+  #   - business.test.suneasy.app
+  #   - api.test.suneasy.app
+
+---
+# Alternative: Individual certificates for each subdomain (HTTP-01 challenge)
+# Uncomment if you can't use DNS-01 challenge for wildcard
+
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: suneasy-subdomains-cert
+#   namespace: suneasy-dev
+# spec:
+#   secretName: suneasy-tls-cert
+#   issuerRef:
+#     name: letsencrypt-staging
+#     kind: ClusterIssuer
+#   dnsNames:
+#     - admin.test.suneasy.app
+#     - dashboard.test.suneasy.app
+#     - www.test.suneasy.app
+#     - app.test.suneasy.app
+#     - client.test.suneasy.app
+#     - business.test.suneasy.app
+#     - api.test.suneasy.app
+#     - adminer.test.suneasy.app
+#     - mailhog.test.suneasy.app
+#     - rabbitmq.test.suneasy.app
+#     - redis-commander.test.suneasy.app
+#     - traefik.test.suneasy.app

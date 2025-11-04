@@ -1,0 +1,33 @@
+# Kubernetes secrets and sensitive files
+k8s/**/secrets.yaml
+!k8s/**/secrets.yaml.example
+k8s/**/*.key
+k8s/**/*.crt
+k8s/**/*.pem
+k8s/**/kubeconfig*
+k8s/**/local-*.yaml
+
+# k3d cluster data
+.k3d-volumes/
+
+# Skaffold cache
+.skaffold/
+
+# Local environment files
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log

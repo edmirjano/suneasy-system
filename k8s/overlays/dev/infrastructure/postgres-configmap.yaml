@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: suneasy-dev
+  labels:
+    app: postgres
+    tier: infrastructure
+data:
+  init-databases.sql: |
+    -- SunEasy Database Initialization Script
+    -- This script creates all required databases and enables necessary extensions
+
+    -- Create all 13 microservice databases
+    CREATE DATABASE suneasy_auth;
+    CREATE DATABASE suneasy_organization;
+    CREATE DATABASE suneasy_resource;
+    CREATE DATABASE suneasy_reservation;
+    CREATE DATABASE suneasy_payment;
+    CREATE DATABASE suneasy_media;
+    CREATE DATABASE suneasy_notification;
+    CREATE DATABASE suneasy_email;
+    CREATE DATABASE suneasy_config;
+    CREATE DATABASE suneasy_log;
+    CREATE DATABASE suneasy_sms;
+    CREATE DATABASE suneasy_review;
+    CREATE DATABASE suneasy_geolocation;
+
+    -- Connect to each database and enable extensions
+    \c suneasy_auth;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_auth TO suneasy_user;
+
+    \c suneasy_organization;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_organization TO suneasy_user;
+
+    \c suneasy_resource;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_resource TO suneasy_user;
+
+    \c suneasy_reservation;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_reservation TO suneasy_user;
+
+    \c suneasy_payment;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_payment TO suneasy_user;
+
+    \c suneasy_media;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_media TO suneasy_user;
+
+    \c suneasy_notification;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_notification TO suneasy_user;
+
+    \c suneasy_email;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_email TO suneasy_user;
+
+    \c suneasy_config;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_config TO suneasy_user;
+
+    \c suneasy_log;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_log TO suneasy_user;
+
+    \c suneasy_sms;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_sms TO suneasy_user;
+
+    \c suneasy_review;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_review TO suneasy_user;
+
+    \c suneasy_geolocation;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    GRANT ALL PRIVILEGES ON DATABASE suneasy_geolocation TO suneasy_user;
+
+    -- Switch back to default database
+    \c postgres;

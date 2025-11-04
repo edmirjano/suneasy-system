@@ -1,0 +1,184 @@
+#!/bin/bash
+
+# SunEasy Development Environment - Single Script Setup
+# This script starts Minikube, deploys all services, and enables hot reload
+# Services persist after script exits (Ctrl+C)
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+NAMESPACE="suneasy-dev"
+CLOUDFLARE_API_TOKEN="_R8V16p9TjQ2zwJgT_DKxV9o3NZjFrlbIH5-Cd8r"
+
+echo -e "${BLUE}================================================${NC}"
+echo -e "${BLUE}  SunEasy Development Environment${NC}"
+echo -e "${BLUE}================================================${NC}"
+echo ""
+
+# ============================================================================
+# Phase 1: Prerequisites Check
+# ============================================================================
+
+echo -e "${YELLOW}[1/8] Checking prerequisites...${NC}"
+
+# Check Docker
+if ! command -v docker &> /dev/null; then
+    echo -e "${RED}✗ Docker not found. Please install Docker first.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ Docker installed${NC}"
+
+# Check Minikube
+if ! command -v minikube &> /dev/null; then
+    echo -e "${YELLOW}Installing Minikube...${NC}"
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    sudo install minikube-linux-amd64 /usr/local/bin/minikube
+    rm minikube-linux-amd64
+fi
+echo -e "${GREEN}✓ Minikube installed${NC}"
+
+# Check kubectl
+if ! command -v kubectl &> /dev/null; then
+    echo -e "${RED}✗ kubectl not found. Please install kubectl.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ kubectl installed${NC}"
+
+# Check Skaffold
+if ! command -v skaffold &> /dev/null; then
+    echo -e "${RED}✗ Skaffold not found. Please install Skaffold.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}✓ Skaffold installed${NC}"
+
+# Check Helm
+if ! command -v helm &> /dev/null; then
+    echo -e "${YELLOW}Installing Helm...${NC}"
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+fi
+echo -e "${GREEN}✓ Helm installed${NC}"
+
+echo ""
+
+# ============================================================================
+# Phase 2: Minikube Cluster Setup
+# ============================================================================
+
+echo -e "${YELLOW}[2/8] Setting up Minikube cluster...${NC}"
+
+if minikube status &> /dev/null; then
+    echo -e "${GREEN}✓ Minikube cluster already running${NC}"
+else
+    echo -e "${YELLOW}Creating Minikube cluster (this may take 2-3 minutes)...${NC}"
+    minikube start \
+        --driver=docker \
+        --force \
+        --cpus=6 \
+        --memory=24576 \
+        --disk-size=60g \
+        --kubernetes-version=v1.28.0 \
+        --addons=ingress,metrics-server,storage-provisioner
+
+    echo -e "${GREEN}✓ Minikube cluster created${NC}"
+fi
+
+# Set kubectl context
+kubectl config use-context minikube
+
+echo ""
+
+# ============================================================================
+# Phase 3: Install Infrastructure Components
+# ============================================================================
+
+echo -e "${YELLOW}[3/8] Installing infrastructure components...${NC}"
+
+# Install cert-manager (if not installed)
+if ! kubectl get namespace cert-manager &> /dev/null; then
+    echo -e "${YELLOW}Installing cert-manager...${NC}"
+    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+    echo -e "${YELLOW}Waiting for cert-manager to be ready...${NC}"
+    kubectl wait --for=condition=available --timeout=180s deployment/cert-manager -n cert-manager
+    kubectl wait --for=condition=available --timeout=180s deployment/cert-manager-webhook -n cert-manager
+    echo -e "${GREEN}✓ cert-manager installed${NC}"
+else
+    echo -e "${GREEN}✓ cert-manager already installed${NC}"
+fi
+
+# Install Traefik (if not using default ingress)
+# Minikube comes with nginx-ingress by default, which works fine
+
+echo ""
+
+# ============================================================================
+# Phase 4: Create Namespace and Secrets
+# ============================================================================
+
+echo -e "${YELLOW}[4/8] Setting up namespace and secrets...${NC}"
+
+# Create namespace
+kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+echo -e "${GREEN}✓ Namespace ${NAMESPACE} ready${NC}"
+
+# Apply secrets
+if [ -f "k8s/dev/secrets.yaml" ]; then
+    kubectl apply -f k8s/dev/secrets.yaml
+    echo -e "${GREEN}✓ Secrets applied${NC}"
+else
+    echo -e "${RED}✗ secrets.yaml not found. Please create it first.${NC}"
+    exit 1
+fi
+
+# Apply Cloudflare API token for cert-manager
+kubectl create secret generic cloudflare-api-token \
+    --from-literal=api-token=${CLOUDFLARE_API_TOKEN} \
+    --namespace=cert-manager \
+    --dry-run=client -o yaml | kubectl apply -f -
+echo -e "${GREEN}✓ Cloudflare API token configured${NC}"
+
+# Apply ClusterIssuer for Let's Encrypt
+kubectl apply -f k8s/dev/cert-manager/cluster-issuer.yaml
+echo -e "${GREEN}✓ ClusterIssuer configured${NC}"
+
+echo ""
+
+# ============================================================================
+# Phase 5: Start Development with Hot Reload
+# ============================================================================
+
+echo -e "${YELLOW}[5/5] Starting Skaffold development mode...${NC}"
+echo ""
+echo -e "${BLUE}================================================${NC}"
+echo -e "${BLUE}  🔥 Hot Reload Active${NC}"
+echo -e "${BLUE}================================================${NC}"
+echo ""
+echo -e "${GREEN}Services are now running and will persist after you exit!${NC}"
+echo ""
+echo -e "${YELLOW}Access your applications:${NC}"
+echo -e "  ${BLUE}https://admin.test.suneasy.app${NC}"
+echo -e "  ${BLUE}https://dashboard.test.suneasy.app${NC}"
+echo -e "  ${BLUE}https://api.test.suneasy.app${NC}"
+echo ""
+echo -e "${YELLOW}When you edit files:${NC}"
+echo -e "  • Frontend changes: Auto-reload in 2-3 seconds"
+echo -e "  • Backend changes: Auto-rebuild in 5-10 seconds"
+echo ""
+echo -e "${YELLOW}Press Ctrl+C to stop hot reload${NC}"
+echo -e "${YELLOW}(Services will keep running with latest code)${NC}"
+echo ""
+echo -e "${BLUE}================================================${NC}"
+echo ""
+
+# Start Skaffold with hot reload (no cleanup on exit)
+skaffold dev --cleanup=false --port-forward=true --status-check=false
+
+echo ""
+echo -e "${GREEN}✓ Hot reload stopped${NC}"
+echo -e "${YELLOW}Services are still running. Access URLs above are still active.${NC}"
+echo -e "${YELLOW}Run './start-dev.sh' again to re-enable hot reload.${NC}"

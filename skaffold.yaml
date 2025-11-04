@@ -1,0 +1,263 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+metadata:
+  name: suneasy-unified
+
+# Unified Skaffold configuration for SunEasy platform
+# Orchestrates both frontend and backend microservices
+
+# Build configuration - all services
+build:
+  artifacts:
+    # Frontend applications (6 apps)
+    - image: suneasy/admin
+      context: suneasy
+      docker:
+        dockerfile: apps/admin/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/admin/src/**/*"
+            dest: /app/apps/admin/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    - image: suneasy/business
+      context: suneasy
+      docker:
+        dockerfile: apps/business/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/business/src/**/*"
+            dest: /app/apps/business/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    - image: suneasy/client
+      context: suneasy
+      docker:
+        dockerfile: apps/client/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/client/src/**/*"
+            dest: /app/apps/client/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    - image: suneasy/client-web
+      context: suneasy
+      docker:
+        dockerfile: apps/client-web/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/client-web/src/**/*"
+            dest: /app/apps/client-web/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    - image: suneasy/dashboard
+      context: suneasy
+      docker:
+        dockerfile: apps/dashboard/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/dashboard/src/**/*"
+            dest: /app/apps/dashboard/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    - image: suneasy/landing
+      context: suneasy
+      docker:
+        dockerfile: apps/landing/Dockerfile.dev
+      sync:
+        manual:
+          - src: "suneasy/apps/landing/src/**/*"
+            dest: /app/apps/landing/src
+          - src: "suneasy/libs/*/src/**/*"
+            dest: /app/libs
+
+    # Backend microservices (14 services)
+    - image: suneasy/api-gateway
+      context: SunEasyBE
+      docker:
+        dockerfile: ApiGateway/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/ApiGateway/**/*.cs"
+            dest: /app/ApiGateway
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/auth
+      context: SunEasyBE
+      docker:
+        dockerfile: Auth/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Auth/**/*.cs"
+            dest: /app/Auth
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/organization
+      context: SunEasyBE
+      docker:
+        dockerfile: Organization/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Organization/**/*.cs"
+            dest: /app/Organization
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/resource
+      context: SunEasyBE
+      docker:
+        dockerfile: Resource/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Resource/**/*.cs"
+            dest: /app/Resource
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/reservation
+      context: SunEasyBE
+      docker:
+        dockerfile: Reservation/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Reservation/**/*.cs"
+            dest: /app/Reservation
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/payment
+      context: SunEasyBE
+      docker:
+        dockerfile: Payment/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Payment/**/*.cs"
+            dest: /app/Payment
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/media
+      context: SunEasyBE
+      docker:
+        dockerfile: Media/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Media/**/*.cs"
+            dest: /app/Media
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/notification
+      context: SunEasyBE
+      docker:
+        dockerfile: Notification/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Notification/**/*.cs"
+            dest: /app/Notification
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/email
+      context: SunEasyBE
+      docker:
+        dockerfile: Email/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Email/**/*.cs"
+            dest: /app/Email
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/config
+      context: SunEasyBE
+      docker:
+        dockerfile: Config/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Config/**/*.cs"
+            dest: /app/Config
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/log
+      context: SunEasyBE
+      docker:
+        dockerfile: Log/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Log/**/*.cs"
+            dest: /app/Log
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/sms
+      context: SunEasyBE
+      docker:
+        dockerfile: Sms/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Sms/**/*.cs"
+            dest: /app/Sms
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/review
+      context: SunEasyBE
+      docker:
+        dockerfile: Review/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Review/**/*.cs"
+            dest: /app/Review
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+    - image: suneasy/geolocation
+      context: SunEasyBE
+      docker:
+        dockerfile: Geolocation/Dockerfile.dev
+      sync:
+        manual:
+          - src: "SunEasyBE/Geolocation/**/*.cs"
+            dest: /app/Geolocation
+          - src: "SunEasyBE/Core/**/*.cs"
+            dest: /app/Core
+
+  local:
+    push: true               # Push to local registry for k3d to pull
+    useBuildkit: true        # Fast Docker builds
+    useDockerCLI: false      # Let Skaffold handle image loading
+    concurrency: 8           # Parallel builds (you have 12 cores!)
+
+# Manifests configuration - new unified structure
+manifests:
+  rawYaml:
+    # Base configurations
+    - k8s/base/namespace.yaml
+    # Infrastructure
+    - k8s/overlays/dev/infrastructure/*.yaml
+    # Backend services  
+    - k8s/overlays/dev/backend/*.yaml
+    # Frontend services
+    - k8s/overlays/dev/frontend/*.yaml
+    # Ingress
+    - k8s/overlays/dev/ingress/*.yaml
+
+# Deployment configuration
+deploy:
+  kubectl: {}
+  kubeContext: k3d-suneasy-dev  # Explicitly use k3d cluster
+
+# No port forwarding - using Ingress with real domains
+# Access via:
+#   https://admin.test.suneasy.app
+#   https://api.test.suneasy.app
+#   etc.

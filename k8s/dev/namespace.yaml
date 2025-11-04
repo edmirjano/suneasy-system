@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: suneasy-dev
+  labels:
+    name: suneasy-dev
+    environment: development
+    managed-by: skaffold

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin
+  namespace: suneasy-dev
+  labels:
+    app: admin
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+        component: frontend
+    spec:
+      containers:
+        - name: admin
+          image: suneasy/admin:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4100
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: API_URL
+            - name: WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: WS_URL
+            - name: NODE_ENV
+              value: 'development'
+          resources:
+            requests:
+              memory: '1Gi'
+              cpu: '100m'
+            limits:
+              memory: '4Gi'
+              cpu: '1000m'

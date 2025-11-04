@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: suneasy-dev
+  labels:
+    app: dashboard
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+        component: frontend
+    spec:
+      containers:
+        - name: dashboard
+          image: suneasy/dashboard:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: API_URL
+            - name: WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: WS_URL
+            - name: NODE_ENV
+              value: 'development'
+          resources:
+            requests:
+              memory: '1Gi'
+              cpu: '100m'
+            limits:
+              memory: '4Gi'
+              cpu: '1000m'

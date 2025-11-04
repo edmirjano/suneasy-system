@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: config
+  namespace: suneasy-dev
+  labels:
+    app: config
+    component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: config
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8090
+    targetPort: 80

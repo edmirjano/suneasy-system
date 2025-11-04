@@ -1,0 +1,299 @@
+---
+# Middleware for CORS
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: cors-headers
+  namespace: suneasy-dev
+spec:
+  headers:
+    accessControlAllowMethods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    accessControlAllowHeaders:
+      - "*"
+    accessControlAllowOriginList:
+      - "https://admin.test.suneasy.app"
+      - "https://dashboard.test.suneasy.app"
+      - "https://www.test.suneasy.app"
+      - "https://app.test.suneasy.app"
+      - "https://client.test.suneasy.app"
+      - "https://business.test.suneasy.app"
+    accessControlMaxAge: 100
+    addVaryHeader: true
+    accessControlAllowCredentials: true
+
+---
+# Middleware for Security Headers
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security-headers
+  namespace: suneasy-dev
+spec:
+  headers:
+    frameDeny: true
+    browserXssFilter: true
+    contentTypeNosniff: true
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+
+---
+# Middleware for Rate Limiting (optional for dev)
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: suneasy-dev
+spec:
+  rateLimit:
+    average: 100
+    burst: 200
+
+---
+# TLS Store Configuration
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSStore
+metadata:
+  name: default
+  namespace: suneasy-dev
+spec:
+  defaultCertificate:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Admin Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: admin-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`admin.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: admin
+          port: 4100
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Dashboard Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`dashboard.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: dashboard
+          port: 4000
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Landing Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: landing-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`www.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: landing
+          port: 4300
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Client Web Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: client-web-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`app.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: client-web
+          port: 4500
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Client Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: client-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`client.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: client
+          port: 4200
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Business Frontend (HTTPS)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: business-frontend
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`business.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: business
+          port: 4201
+      middlewares:
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for API Gateway (HTTPS with CORS and WebSocket support)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api-gateway
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`api.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: api-gateway
+          port: 80
+      middlewares:
+        - name: cors-headers
+        - name: security-headers
+  tls:
+    secretName: suneasy-tls-cert
+
+---
+# IngressRoute for Adminer (HTTP)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: adminer
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`adminer.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: adminer
+          port: 8080
+
+---
+# IngressRoute for MailHog (HTTP)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mailhog
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`mailhog.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: mailhog
+          port: 8025
+
+---
+# IngressRoute for RabbitMQ Management (HTTP)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: rabbitmq
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`rabbitmq.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: rabbitmq
+          port: 15672
+
+---
+# IngressRoute for Redis Commander (HTTP)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: redis-commander
+  namespace: suneasy-dev
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`redis-commander.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: redis-commander
+          port: 8081
+
+---
+# IngressRoute for Traefik Dashboard (HTTP)
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`traefik.test.suneasy.app`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService

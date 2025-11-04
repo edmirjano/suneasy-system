@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+  namespace: suneasy-dev
+  labels:
+    app: client
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+        component: frontend
+    spec:
+      containers:
+        - name: client
+          image: suneasy/client:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4200
+          env:
+            - name: API_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: API_URL
+            - name: WS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: frontend-config
+                  key: WS_URL
+            - name: NODE_ENV
+              value: 'development'
+          resources:
+            requests:
+              memory: '1Gi'
+              cpu: '100m'
+            limits:
+              memory: '4Gi'
+              cpu: '1000m'

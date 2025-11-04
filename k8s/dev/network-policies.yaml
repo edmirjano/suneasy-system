@@ -1,0 +1,378 @@
+---
+# Network Policies for Suneasy Development Environment
+# These policies control traffic flow between pods in the cluster
+
+# Default Deny All Ingress Traffic
+# This policy denies all incoming traffic by default
+# Other policies will explicitly allow necessary traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: suneasy-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# Allow Traffic from Traefik to Frontend Services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-to-frontend
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+      ports:
+        - protocol: TCP
+          port: 4000  # dashboard
+        - protocol: TCP
+          port: 4100  # admin
+        - protocol: TCP
+          port: 4200  # client
+        - protocol: TCP
+          port: 4201  # business
+        - protocol: TCP
+          port: 4300  # landing
+        - protocol: TCP
+          port: 4500  # client-web
+
+---
+# Allow Traffic from Traefik to API Gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-to-api-gateway
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: api-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+# Allow Frontend Services to API Gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-api-gateway
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: api-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+# Allow API Gateway to Backend Services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api-gateway-to-backend
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      tier: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - protocol: TCP
+          port: 3000
+
+---
+# Allow Backend Services to PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-postgres
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: backend
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Backend Services to Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-redis
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: backend
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Allow Backend Services to RabbitMQ
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-rabbitmq
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: rabbitmq
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: backend
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - protocol: TCP
+          port: 5672  # AMQP
+        - protocol: TCP
+          port: 15672  # Management UI
+
+---
+# Allow Backend Services to Elasticsearch
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-elasticsearch
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: elasticsearch
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: backend
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - protocol: TCP
+          port: 9200
+        - protocol: TCP
+          port: 9300
+
+---
+# Allow Traffic to Adminer (Database Admin)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-adminer
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: adminer
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+
+---
+# Allow Traffic to MailHog
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-mailhog
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: mailhog
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+        - podSelector:
+            matchLabels:
+              tier: backend
+      ports:
+        - protocol: TCP
+          port: 1025  # SMTP
+        - protocol: TCP
+          port: 8025  # Web UI
+
+---
+# Allow Traffic to Redis Commander
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-to-redis-commander
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: redis-commander
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: traefik
+      ports:
+        - protocol: TCP
+          port: 8081
+
+---
+# Allow Adminer to PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-adminer-to-postgres
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: adminer
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow Redis Commander to Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-redis-commander-to-redis
+  namespace: suneasy-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: redis-commander
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Allow DNS Resolution (CoreDNS)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: suneasy-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+---
+# Allow All Egress Traffic (for external API calls, etc.)
+# Comment out this policy if you want stricter egress control
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-egress
+  namespace: suneasy-dev
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - {}
+
+---
+# Note: To enable these network policies, make sure your Kubernetes cluster
+# has a network plugin that supports NetworkPolicy (e.g., Calico, Cilium, Weave Net)
+#
+# For development, you may want to disable network policies initially and enable
+# them once your application is working correctly.
+#
+# To disable all policies, simply don't apply this file or delete the policies:
+# kubectl delete networkpolicies --all -n suneasy-dev

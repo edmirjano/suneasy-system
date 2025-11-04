@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: geolocation
+  namespace: suneasy-dev
+  labels:
+    app: geolocation
+    component: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: geolocation
+  ports:
+  - name: http
+    protocol: TCP
+    port: 8130
+    targetPort: 80

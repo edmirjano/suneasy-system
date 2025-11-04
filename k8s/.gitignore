@@ -1,0 +1,16 @@
+# Ignore all secrets files
+**/secrets.yaml
+
+# Keep the example templates
+!**/secrets.yaml.example
+
+# Ignore any generated certificates
+**/tls.key
+**/tls.crt
+**/*.pem
+
+# Ignore kubeconfig files if any
+**/kubeconfig*
+
+# Ignore any local overrides
+**/local-*.yaml

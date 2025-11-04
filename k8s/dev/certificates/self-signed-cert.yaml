@@ -1,0 +1,18 @@
+---
+# Self-Signed Certificate for Development
+# This creates a wildcard certificate for *.test.suneasy.app
+
+# First, you need to generate the certificate using OpenSSL
+# Run the script: /root/projects/suneasy/scripts/generate-self-signed-cert.sh
+
+# Then this secret will be created with the generated certificate
+apiVersion: v1
+kind: Secret
+metadata:
+  name: suneasy-tls-cert
+  namespace: suneasy-dev
+type: kubernetes.io/tls
+data:
+  # These will be populated by the script
+  # tls.crt: <base64-encoded-certificate>
+  # tls.key: <base64-encoded-private-key>

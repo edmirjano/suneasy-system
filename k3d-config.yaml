@@ -1,0 +1,51 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: suneasy-dev
+servers: 1
+agents: 2
+image: rancher/k3s:v1.31.13-k3s1
+
+# Port mappings for SunEasy services
+# Using standard ports 80/443 for production-like setup with Cloudflare
+ports:
+  - port: 80:80
+    nodeFilters:
+      - loadbalancer
+  - port: 443:443
+    nodeFilters:
+      - loadbalancer
+
+# Volume mounts for persistence
+volumes:
+  - volume: /var/lib/rancher/k3s/storage:/var/lib/rancher/k3s/storage
+    nodeFilters:
+      - all
+
+# Registry for local development (optional but useful)
+# Port: 9500 (custom for SunEasy project)
+registries:
+  create:
+    name: suneasy-registry
+    host: "0.0.0.0"
+    hostPort: "9500"
+  config: |
+    mirrors:
+      "localhost:9500":
+        endpoint:
+          - http://suneasy-registry:5000
+
+# Options
+options:
+  k3d:
+    wait: true
+    timeout: "180s"
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

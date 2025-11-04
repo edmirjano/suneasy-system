@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: suneasy-dev
+  labels:
+    component: frontend
+data:
+  # Backend API URLs
+  API_URL: 'https://api.test.suneasy.app'
+  WS_URL: 'wss://api.test.suneasy.app'
+
+  # Frontend Application URLs
+  ADMIN_URL: 'https://admin.test.suneasy.app'
+  DASHBOARD_URL: 'https://dashboard.test.suneasy.app'
+  LANDING_URL: 'https://www.test.suneasy.app'
+  CLIENT_WEB_URL: 'https://app.test.suneasy.app'
+  CLIENT_URL: 'https://client.test.suneasy.app'
+  BUSINESS_URL: 'https://business.test.suneasy.app'

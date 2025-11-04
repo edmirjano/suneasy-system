@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: suneasy-dev
+  labels:
+    app: postgres
+    tier: infrastructure
+data:
+  POSTGRES_USER: suneasy_user
+  POSTGRES_PASSWORD: suneasy_password
+  POSTGRES_DB: postgres
+  # List of all databases that need to be created
+  # These are created by the init script:
+  # - suneasy_auth
+  # - suneasy_organization
+  # - suneasy_resource
+  # - suneasy_reservation
+  # - suneasy_payment
+  # - suneasy_media
+  # - suneasy_notification
+  # - suneasy_email
+  # - suneasy_config
+  # - suneasy_log
+  # - suneasy_sms
+  # - suneasy_review
+  # - suneasy_geolocation

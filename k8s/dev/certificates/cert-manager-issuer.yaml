@@ -1,0 +1,71 @@
+---
+# Cert-Manager ClusterIssuer for Let's Encrypt Staging
+# Use this for testing to avoid rate limits
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # Let's Encrypt staging server
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: admin@suneasy.app  # Change this to your email
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+
+---
+# Cert-Manager ClusterIssuer for Let's Encrypt Production
+# Use this once you've tested with staging
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # Let's Encrypt production server
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@suneasy.app  # Change this to your email
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+
+---
+# Alternative: DNS-01 Challenge with Cloudflare
+# Uncomment and configure if you want to use DNS challenge
+# apiVersion: cert-manager.io/v1
+# kind: ClusterIssuer
+# metadata:
+#   name: letsencrypt-cloudflare
+# spec:
+#   acme:
+#     server: https://acme-v02.api.letsencrypt.org/directory
+#     email: admin@suneasy.app
+#     privateKeySecretRef:
+#       name: letsencrypt-cloudflare
+#     solvers:
+#       - dns01:
+#           cloudflare:
+#             email: your-cloudflare-email@example.com
+#             apiTokenSecretRef:
+#               name: cloudflare-api-token-secret
+#               key: api-token
+
+---
+# Secret for Cloudflare API Token (if using DNS-01)
+# Create this with: kubectl create secret generic cloudflare-api-token-secret \
+#   --from-literal=api-token=YOUR_CLOUDFLARE_API_TOKEN -n cert-manager
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: cloudflare-api-token-secret
+#   namespace: cert-manager
+# type: Opaque
+# data:
+#   api-token: <base64-encoded-cloudflare-api-token>

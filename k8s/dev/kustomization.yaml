@@ -1,0 +1,75 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: suneasy-dev
+
+resources:
+  - namespace.yaml
+  - infrastructure/postgres-statefulset.yaml
+  - infrastructure/postgres-service.yaml
+  - infrastructure/postgres-configmap.yaml
+  - infrastructure/redis-deployment.yaml
+  - infrastructure/redis-service.yaml
+  - infrastructure/rabbitmq-deployment.yaml
+  - infrastructure/rabbitmq-service.yaml
+  - infrastructure/elasticsearch-deployment.yaml
+  - infrastructure/elasticsearch-service.yaml
+  - infrastructure/adminer-deployment.yaml
+  - infrastructure/adminer-service.yaml
+  - infrastructure/redis-commander-deployment.yaml
+  - infrastructure/redis-commander-service.yaml
+  - infrastructure/mailhog-deployment.yaml
+  - infrastructure/mailhog-service.yaml
+  - backend/api-gateway-deployment.yaml
+  - backend/api-gateway-service.yaml
+  - backend/auth-deployment.yaml
+  - backend/auth-service.yaml
+  - backend/organization-deployment.yaml
+  - backend/organization-service.yaml
+  - backend/resource-deployment.yaml
+  - backend/resource-service.yaml
+  - backend/reservation-deployment.yaml
+  - backend/reservation-service.yaml
+  - backend/payment-deployment.yaml
+  - backend/payment-service.yaml
+  - backend/media-deployment.yaml
+  - backend/media-service.yaml
+  - backend/notification-deployment.yaml
+  - backend/notification-service.yaml
+  - backend/email-deployment.yaml
+  - backend/email-service.yaml
+  - backend/config-deployment.yaml
+  - backend/config-service.yaml
+  - backend/log-deployment.yaml
+  - backend/log-service.yaml
+  - backend/sms-deployment.yaml
+  - backend/sms-service.yaml
+  - backend/review-deployment.yaml
+  - backend/review-service.yaml
+  - backend/geolocation-deployment.yaml
+  - backend/geolocation-service.yaml
+  - backend/backend-configmap.yaml
+  - frontend/admin-deployment.yaml
+  - frontend/admin-service.yaml
+  - frontend/business-deployment.yaml
+  - frontend/business-service.yaml
+  - frontend/client-deployment.yaml
+  - frontend/client-service.yaml
+  - frontend/client-web-deployment.yaml
+  - frontend/client-web-service.yaml
+  - frontend/dashboard-deployment.yaml
+  - frontend/dashboard-service.yaml
+  - frontend/landing-deployment.yaml
+  - frontend/landing-service.yaml
+  - frontend/frontend-configmap.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: env-config
+    literals:
+      - ENVIRONMENT=development
+      - CLUSTER_NAME=suneasy-dev
+
+# IMPORTANT: secrets.yaml has been configured
+# Note: secrets.yaml is git-ignored for security
+  - secrets.yaml

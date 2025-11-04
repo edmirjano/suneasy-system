@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geolocation
+  namespace: suneasy-dev
+  labels:
+    app: geolocation
+    component: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geolocation
+  template:
+    metadata:
+      labels:
+        app: geolocation
+        component: backend
+    spec:
+      containers:
+      - name: geolocation
+        image: suneasy/geolocation:dev
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: ASPNETCORE_URLS
+          value: http://+:80
+        envFrom:
+        - configMapRef:
+            name: backend-config
+        - secretRef:
+            name: suneasy-secrets
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "500m"
+        livenessProbe:
+          grpc:
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          grpc:
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
